@@ -3,10 +3,10 @@
 #include "DebugMode.h"
 
 
-//bigInt::bigInt(bigInt& a){
-//	innerImpl_ = a.innerImpl_;
-//	positive_ = a.positive_;
-//}
+bigInt::bigInt(const bigInt& a){
+	innerImpl_ = std::string(a.innerImpl_);
+	positive_ = a.positive_;
+}
 
 bigInt::bigInt(std::string a){
 	ASSERT(checkNum(a));
@@ -64,6 +64,7 @@ bigInt operator-(bigInt& a, bigInt& b){
 		}
 		else {
 			//两个都是负数让+来处理  
+			b.positive_ = false;
 			return a + b;
 		}
 	}
@@ -76,7 +77,7 @@ bigInt operator-(bigInt& a, bigInt& b){
 
 	//保证L值更大
 	bigInt ret;
-	if (a.innerImpl_ > b.innerImpl_) {
+	if (absCompare(a,b)==1) {
 		ret.positive_ = a.positive_;
 		L.set(a.innerImpl_), R.set(b.innerImpl_);
 	}else {
@@ -103,6 +104,7 @@ bigInt operator-(bigInt& a, bigInt& b){
 				}
 				j--;
 			}
+			if (j < 0) { system("pause"); }
 			ASSERT(j >= 0);
 			lstr[i] += 10;
 		}
@@ -112,10 +114,50 @@ bigInt operator-(bigInt& a, bigInt& b){
 	return ret;
 }
 
+bool operator>(bigInt & a, bigInt & b){
+	if (a.positive_ == true && b.positive_ == false)
+		return true;
+	else if (a.positive_ == false && b.positive_ == true)
+		return false;
+	int rela=absCompare(a, b);
+	if (a.positive_ == true && rela == 1)
+		return true;
+	if (a.positive_ == false && rela == -1)
+		return true;
+	return false;
+}
+
+bigInt operator*(bigInt & a, bigInt & b){
+	return bigInt();
+}
+
+int absCompare(bigInt & a, bigInt & b)
+{
+	auto aStart = a.innerImpl_.find_first_not_of('0');
+	auto bStart = b.innerImpl_.find_first_not_of('0');
+	if (a.size() - aStart > b.size() - bStart)
+		return 1;
+	else if (a.size() - aStart < b.size() - bStart)
+		return -1;
+	ASSERT(a.size() - aStart == b.size() - bStart);
+	for (int i = aStart; i < a.size(); i++) {
+		if (a.innerImpl_[i] == b.innerImpl_[i])
+			continue;
+		if (a.innerImpl_[i] > b.innerImpl_[i])
+			return 1;
+		else
+			return -1; 
+	}
+	return 0;
+}
+
 std::string bigInt::get() const{
 	return innerImpl_;
 }
 
+std::string bigInt::getWithSign() const{
+	return (this->positive_?"+":"-")+innerImpl_;
+}
 bool bigInt::set(std::string& bigint){
 	if (!checkNum(bigint)) {
 		return false;
