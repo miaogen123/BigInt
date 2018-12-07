@@ -331,3 +331,5 @@ ASALocalRun/
 
 .vs/*
 Debug/*
+/RSA/test.txt
+/RSA/testMulti.txt

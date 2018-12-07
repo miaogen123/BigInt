@@ -6,19 +6,27 @@
 #include "bigInt.h"
 #include"myutils.h"
 //#define DEBUG_ADD_MINUS
+//#define DEBUG_MULTI
+#define DEBUG_EQUAL
 
-void TestAddMinus()
+enum class Arithmetic_Operation {
+	Add,
+	Minus,
+	Multi,
+	Divide,
+};
+
+
+void TestOperator(const Arithmetic_Operation& operat, const std::string& filename)
 {
 	bigInt hel1{};
 	bigInt hel2{};
-	std::ofstream testDataOut("test.txt", std::fstream::app);
-	for (int i = 0; i < 1000; i++) {
-		//uint64_t a = getRandomInt();
-		//uint64_t b = getRandomInt();
-		//hel1.set(std::to_string(a));
-		//hel2.set(std::to_string(b));
+	std::ofstream testDataOut(filename, std::fstream::app);
+	for (int i = 0; i < 10000; i++) {
 		std::string a, b;
-		for (int j = 0; j < 400; j++) {
+		int up1 = getRandomInt(1, 400);
+		int up2 = getRandomInt(1, 400);
+		for (int j = 0; j < up1; j++) {
 			if (j == 0) {
 				if (getRandomInt() % 2 == 0)
 					a.push_back('+');
@@ -27,7 +35,7 @@ void TestAddMinus()
 			}
 			a.push_back(static_cast<char>(getRandomInt(48, 57)));
 		}
-		for (int j = 0; j < 400; j++) {
+		for (int j = 0; j < up2; j++) {
 			if (j == 0) {
 				if (getRandomInt() % 2 == 0)
 					b.push_back('+');
@@ -38,23 +46,50 @@ void TestAddMinus()
 		}
 		hel1.set(a);
 		hel2.set(b);
-		testDataOut << a<<std::endl;
-		testDataOut << b<<std::endl;
-		auto val = hel1 + hel2;
-		testDataOut << (hel1-hel2).getWithSign() << std::endl;
-		testDataOut << (hel1+hel2).getWithSign() << std::endl;
+		testDataOut << hel1.getWithSign()<<std::endl;
+		testDataOut << hel2.getWithSign()<<std::endl;
+		bigInt result{ "0" };
+		std::tuple<bigInt, bigInt> resultOfTwo;
+		switch (operat)
+		{
+		case Arithmetic_Operation::Add:
+			result = hel1 + hel2; 
+			testDataOut << result.getWithSign() << std::endl;
+			break;
+		case Arithmetic_Operation::Minus:
+			result = hel1 - hel2;
+			testDataOut << result.getWithSign() << std::endl;
+			break;
+		case Arithmetic_Operation::Multi:
+			result = hel1 * hel2;
+			testDataOut << result.getWithSign() << std::endl;
+			break;
+		case Arithmetic_Operation::Divide:
+			resultOfTwo = hel1 / hel2;
+			result = std::get<0>(resultOfTwo);
+			break;
+		default:
+			break;
+		}
+		testDataOut << result.getWithSign() << std::endl;
 	}
 	testDataOut.close();
 }
+
+
 
 int main()
 {
 	bigInt hel1{};
 	bigInt hel2{};
+	
+	//TestOperator(Arithmetic_Operation::Add, "test.txt");
+	//TestOperator(Arithmetic_Operation::Minus, "test.txt");
 
-#ifdef DEBUG_ADD_MINUS
-	TestAddMinus();
-#endif // DEBUG_ADD_MINUS
+	//TestOperator(Arithmetic_Operation::Multi, "testMulti.txt");
+	TestOperator(Arithmetic_Operation::Divide, "testDivid.txt");
+
+
 
 	return 0;
 }
